@@ -1,6 +1,5 @@
 import { sdk } from "@farcaster/miniapp-sdk";
-import { useEffect } from "react";
-import { useAccount, useConnect, useSignMessage } from "wagmi";
+import { useEffect, useState } from "react";
 
 function App() {
   useEffect(() => {
@@ -8,69 +7,53 @@ function App() {
     sdk.actions.ready();
   }, []);
 
+  const [counter, setCounter] = useState(0);
+  const [buttonColor, setButtonColor] = useState("bg-blue-600");
+
+  const colors = [
+    "bg-blue-600",
+    "bg-red-600",
+    "bg-green-600",
+    "bg-purple-600",
+    "bg-yellow-600",
+    "bg-pink-600",
+    "bg-indigo-600",
+    "bg-orange-600",
+  ];
+
+  const handleColorChange = () => {
+    const currentIndex = colors.indexOf(buttonColor);
+    const nextIndex = (currentIndex + 1) % colors.length;
+    setButtonColor(colors[nextIndex]);
+  };
+
   return (
     <div className="p-5 max-w-2xl mx-auto min-h-screen flex flex-col items-center justify-center gap-8">
       <h1 className="text-4xl md:text-5xl text-center font-bold bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
-        Vibes Engineering Template
+        Counter App
       </h1>
-      <p className="text-lg text-center opacity-80 text-gray-300">Ready to launch 🚀</p>
-      <div className="bg-gray-800 p-6 rounded-lg shadow-xl">
-        <ConnectMenu />
-      </div>
-    </div>
-  );
-}
 
-function ConnectMenu() {
-  const { isConnected, address } = useAccount();
-  const { connect, connectors } = useConnect();
+      <div className="bg-gray-800 p-8 rounded-lg shadow-xl text-center">
+        <div className="text-8xl font-bold text-white mb-8">{counter}</div>
 
-  if (isConnected) {
-    return (
-      <div className="flex flex-col gap-4">
-        <div className="text-sm text-gray-400">Connected account:</div>
-        <div className="text-xs font-mono bg-gray-900 p-2 rounded break-all">{address}</div>
-        <SignButton />
-      </div>
-    );
-  }
+        <div className="flex gap-4 justify-center">
+          <button
+            type="button"
+            onClick={() => setCounter(counter + 1)}
+            className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold"
+          >
+            Increase Counter
+          </button>
 
-  return (
-    <button
-      type="button"
-      onClick={() => connect({ connector: connectors[0] })}
-      className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
-    >
-      Connect
-    </button>
-  );
-}
-
-function SignButton() {
-  const { signMessage, isPending, data, error } = useSignMessage();
-
-  return (
-    <div className="flex flex-col gap-4">
-      <button
-        type="button"
-        onClick={() => signMessage({ message: "hello world" })}
-        disabled={isPending}
-        className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed transition-colors"
-      >
-        {isPending ? "Signing..." : "Sign message"}
-      </button>
-      {data && (
-        <div className="mt-2">
-          <div className="text-sm text-green-400 mb-1">Signature</div>
-          <div className="text-xs font-mono bg-gray-900 p-2 rounded break-all">{data}</div>
+          <button
+            type="button"
+            onClick={handleColorChange}
+            className={`px-6 py-3 ${buttonColor} text-white rounded-lg hover:opacity-80 transition-all font-semibold`}
+          >
+            Change Color
+          </button>
         </div>
-      )}
-      {error && (
-        <div className="mt-2">
-          <div className="text-sm text-red-400 mb-1">Error</div>
-          <div className="text-xs bg-red-900/20 border border-red-500 p-2 rounded">{error.message}</div>
-        </div>
-      )}
+      </div>
     </div>
   );
 }
